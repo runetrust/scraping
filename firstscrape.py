@@ -18,7 +18,7 @@ def fetch_url(url):
         return response
     except requests.exceptions.RequestException as e:
         print(f"Error fetching page: {e}")
-        return none
+        return None
 
 def fetch_all_urls(urls, max_workers = 10):
         # This allows for parallel fetches, much faster than standard for loop
@@ -29,6 +29,7 @@ def fetch_all_urls(urls, max_workers = 10):
         return [response for response in responses if response is not None]
 
 responses = fetch_all_urls(url_list)
+#print(responses[:10])
 
 all_docs_list = []
 
@@ -45,12 +46,25 @@ for response in responses:
     all_docs_list.extend(docs)
 
 # Keeping only every other index by slicing, for some reason all objects were returned twice in OG call
-all_docs_sliced = docs[::2]
+all_docs_sliced = all_docs_list[::2]
 
+# Empty variable for constructed links
+constructed_links = []
 # Iterate through the found links and print them (currently), in future this gets parsed through regex / NLP to only have raw text
 for doc in all_docs_sliced:
-    print(f"https://www.ft.dk{doc}")
+    link = f"https://www.ft.dk{doc}"
+    constructed_links.append(link)
 
-print(f"Number of constructed links is {len(all_docs_list)}")
+# Passing the constructed links to the fetch function again
+fetched_documents = fetch_all_urls(constructed_links)
+
+# This now extracts all clean text from the returned responses, this should be saved into a file for further processing 
+# Maybe even a pipeline type script for post-processing
+for document in fetched_documents:
+     # Parsing
+     soup = BeautifulSoup(document.content, "html.parser")
+     # Extracting clean text
+     clean_text = soup.get_text()
+     print(clean_text)
 
 
