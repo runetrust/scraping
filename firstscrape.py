@@ -29,7 +29,6 @@ def fetch_all_urls(urls, max_workers = 10):
         return [response for response in responses if response is not None]
 
 responses = fetch_all_urls(url_list)
-#print(responses[:10])
 
 all_docs_list = []
 
