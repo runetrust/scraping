@@ -136,6 +136,7 @@ for document in fetched_documents:
      clean_text = soup.get_text()
      # Creating indexing variable as the data type was "response" from the requests package, this does not work as an iterable variable
      index = fetched_documents.index(document)
+     print(index)
      save_scraped_text(raw_text=clean_text, date = document_date[index])
 
 print("Finished scrape")
