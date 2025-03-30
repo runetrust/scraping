@@ -9,7 +9,29 @@ url_list = ["https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=2
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20231&pageSize=200",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20221&pageSize=200",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20222&pageSize=200",
-            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20211&pageSize=200"
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20211&pageSize=200",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20201",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20191",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20182",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20181",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20171",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20161",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20151",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20142",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20141",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20131",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20121",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20111",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20102",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20101",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20091",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20081",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20072",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20071",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20061",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20051",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20042",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20041"
 ]
 
 def fetch_url(url):
