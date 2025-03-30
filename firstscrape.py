@@ -1,5 +1,6 @@
 import requests
 import re
+import os
 import concurrent.futures
 from bs4 import BeautifulSoup
 
@@ -9,7 +10,7 @@ url_list = ["https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=2
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20221&pageSize=200",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20222&pageSize=200",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20211&pageSize=200"
-            ]
+]
 
 def fetch_url(url):
     try:
@@ -29,20 +30,21 @@ def fetch_all_urls(urls, max_workers = 10):
         return [response for response in responses if response is not None]
 
 def extract_date(text):
-    # Pattern matches yyyy-mm-dd format
-    pattern = r'(\d{4}-\d{2}-\d{2})'
+    # Pattern matches yyyy-mm-dd_HHHH format
+    pattern = r"\/forhandlinger\/\d+\/\d+M\d+_(\d{4}-\d{2}-\d{2}_\d{4})\.htm" #r'(\d{4}-\d{2}-\d{2}-\d{4})
     match = re.search(pattern, text)
     if match:
         return match.group(1)
     else:
         return None
 
-def save_scraped_text(raw_text, url, base_directory='scraped_texts', prefix='meeting'):
+def save_scraped_text(raw_text, date, base_directory='scraped_texts', prefix='meeting'):
     """
     Save scraped text to a file with a timestamped filename.
     
     Args:
         raw_text (str): The text content to be saved
+        date (str): The date to the meeting
         base_directory (str, optional): Directory to save text files. Defaults to 'scraped_texts'.
         prefix (str, optional): Prefix for the filename. Defaults to 'meeting'.
     
@@ -53,8 +55,7 @@ def save_scraped_text(raw_text, url, base_directory='scraped_texts', prefix='mee
     os.makedirs(base_directory, exist_ok=True)
     
     # Generate a timestamped filename
-    timestamp = extract_date(url)
-    filename = f"{prefix}_{timestamp}.txt"
+    filename = f"{prefix}_{date}.txt"
     full_path = os.path.join(base_directory, filename)
     
     # Save the text with UTF-8 encoding to support various characters
@@ -62,6 +63,7 @@ def save_scraped_text(raw_text, url, base_directory='scraped_texts', prefix='mee
         with open(full_path, 'w', encoding='utf-8') as file:
             file.write(raw_text)
         print(f"Text successfully saved to {full_path}")
+        # Returning file path is useful for loading in data later
         return full_path
     except IOError as e:
         print(f"Error saving file: {e}")
@@ -76,7 +78,7 @@ for response in responses:
     soup = BeautifulSoup(response.content, "html.parser")
     # Find all links with the document link class
     all_docs = soup.find_all("a", class_="column-documents__link")
-    # List comprehension to account for the list object returned by find_all()
+    # List comprehension to account for the list object returned by find_all(), this returns all hyperlinks
     partial_links = [doc.get("href") for doc in all_docs]
     # Filter out only "forhandlinger", as the others seem to be videos only
     docs = [link for link in partial_links if "forhandlinger" in link]
@@ -88,30 +90,30 @@ all_docs_sliced = all_docs_list[::2]
 
 # Empty list for date extracted from the link of the document
 document_date = []
-
 # Empty variable for constructed links
 constructed_links = []
 
-# Iterate through the found links and construct a full link for further fetch and extract date
+# Iterate through the found links and construct a full link for further fetch and extract date from the link
 for doc in all_docs_sliced:
     date = extract_date(doc)
     document_date.append(date)
     link = f"https://www.ft.dk{doc}"
     constructed_links.append(link)
+print("Links constructed")
 
 # Passing the constructed links to the fetch function again
+print("Fetching all docs")
 fetched_documents = fetch_all_urls(constructed_links)
-print(fetched_documents[:5])
 
-# This now extracts all clean text from the returned responses, this should be saved into a file for further processing 
-# Maybe even a pipeline type script for post-processing
+# This now extracts all clean text and saves with a unique timestamp to prevent overwriting
+print("Souping all docs and saving to file")
 for document in fetched_documents:
      # Parsing
      soup = BeautifulSoup(document.content, "html.parser")
-     # Extracting clean text
+     # Extracting clean text and saving to file
      clean_text = soup.get_text()
-     save_scraped_text(clean_text, document_date[document])
-     #print(clean_text)
+     # Creating indexing variable as the data type was "response" from the requests package, this does not work as an iterable variable
+     index = fetched_documents.index(document)
+     save_scraped_text(raw_text=clean_text, date = document_date[index])
 
-
-print("finished")
+print("Finished scrape")
