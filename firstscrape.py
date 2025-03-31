@@ -4,7 +4,12 @@ import os
 import concurrent.futures
 from bs4 import BeautifulSoup
 
-# Theoretically scales infinitely, current fetch takes about ~ 10 seconds
+# Script works and saves all meeting up to and including 2007. From 2006 and back to 2004, the 
+# Format changes from html to pdf, and the naming structure also changes. 
+# This is a problem because the file naming scheme is right now dependant on a certain naming structure
+# Which includes the date in the link. The older meetings are just called M101 for meeting 101 that year fx.
+
+# Theoretically scales infinitely, current fetch takes about ~ 10 minutes
 url_list = ["https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20231&pageSize=200",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?session=20221&pageSize=200",
@@ -27,12 +32,16 @@ url_list = ["https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=2
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20091",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20081",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20072",
-            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20071",
+            "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20071"
+]
+
+'''
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20061",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20051",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20042",
             "https://www.ft.dk/da/dokumenter/dokumentlister/referater?pageSize=200&session=20041"
 ]
+'''
 
 def fetch_url(url):
     try:
