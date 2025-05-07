@@ -52,9 +52,11 @@ url_list = [
     "https://www.debates.org/voter-education/debate-transcripts/september-26-1960-debate-transcript/",
     "https://www.debates.org/voter-education/debate-transcripts/october-7-1960-debate-transcript/",
     "https://www.debates.org/voter-education/debate-transcripts/october-13-1960-debate-transcript/",
-    "https://www.debates.org/voter-education/debate-transcripts/october-13-1960-debate-transcript/",
-    "https://edition.cnn.com/2024/06/27/politics/read-biden-trump-debate-rush-transcript/index.html"
-]
+    "https://www.debates.org/voter-education/debate-transcripts/october-13-1960-debate-transcript/"]
+
+
+#    "https://edition.cnn.com/2024/06/27/politics/read-biden-trump-debate-rush-transcript/index.html"
+
 
 def fetch_url(url):
     try:
@@ -72,6 +74,17 @@ def fetch_all_urls(urls, max_workers = 10):
             responses = list(executor.map(fetch_url, urls))
         # Only returning succesful fetches
         return [response for response in responses if response is not None]
+
+def extract_names(text):
+    pattern = r'PARTICIPANTS:\s*\n(.*?)(?=\n[A-Z][A-Z\s]+:)'
+    match = re.search(pattern, text, re.DOTALL)
+    if match:
+        participants = match.group(1).strip()
+        # Replace spaces and newlines with underscores
+        participants = participants.replace(' ', '_').replace('\n', '_')
+        return participants
+    else:
+        return None
 
 def save_scraped_text(raw_text, identifier, base_directory='scraped_debates', prefix='debate'):
     """
@@ -95,7 +108,7 @@ def save_scraped_text(raw_text, identifier, base_directory='scraped_debates', pr
     
     # Save the text with UTF-8 encoding to support various characters
     try:
-        with open(full_path, 'w', encoding='utf-8') as file:
+        with open(full_path, 'a', encoding='utf-8') as file:
             file.write(raw_text)
         print(f"Text successfully saved to {full_path}")
         # Returning file path is useful for loading in data later
@@ -104,13 +117,22 @@ def save_scraped_text(raw_text, identifier, base_directory='scraped_debates', pr
         print(f"Error saving file: {e}")
         return None
     
+
+
 responses = fetch_all_urls(url_list)
+
+names_in_document = []
 
 for document in responses:
      # Parsing
      soup = BeautifulSoup(document.content, "html.parser")
      # Extracting clean text and saving to file
      clean_text = soup.get_text()
+
+     name = extract_names(clean_text)
+     print(name)
+     names_in_document.append(name)
+
      # Creating indexing variable as the data type was "response" from the requests package, this does not work as an iterable variable
      index = responses.index(document)
-     save_scraped_text(raw_text=clean_text, identifier = index)
+     save_scraped_text(raw_text=clean_text, identifier = names_in_document[index])
