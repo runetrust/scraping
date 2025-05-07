@@ -76,34 +76,49 @@ def fetch_all_urls(urls, max_workers = 10):
         return [response for response in responses if response is not None]
 
 def extract_names(text):
-    pattern = r'PARTICIPANTS:\s*\n(.*?)(?=\n[A-Z][A-Z\s]+:)'
+    pattern = r'(?:PARTICIPANTS:|SPEAKERS:)\s*\n(.*?)(?=[A-Z][A-Z\s]+:)'
+    #pattern = r'(\s*[A-Z]+:)'
     match = re.search(pattern, text, re.DOTALL)
     if match:
         participants = match.group(1).strip()
         # Replace spaces and newlines with underscores
-        participants = participants.replace(' ', '_').replace('\n', '_')
+        participants = participants.replace(' ', '_').replace('\n', '_').replace('*','')
         return participants
     else:
         return None
+    
+def extract_date(soup):
+    h1_tag = soup.find("h1")
+    if h1_tag is None:
+        date_text = "October_22,_2020"
+        print("No h1 tag")
+        return date_text
+    date_text = h1_tag.get_text(strip=True)
+    date_text = date_text.replace(' ', '_').replace(',','')
+    return date_text
 
-def save_scraped_text(raw_text, identifier, base_directory='scraped_debates', prefix='debate'):
+def save_scraped_text(raw_text, identifier, date, backup_identifier, base_directory='scraped_debates'):
     """
     Save scraped text to a file with a timestamped filename.
     
     Args:
         raw_text (str): The text content to be saved
         identifier (str): Unique identifier
+        date (str): Extracted date from debate
+        backup_identifier (str): A fallback identifier to ensure file gets saved even without extracted name
         base_directory (str, optional): Directory to save text files. Defaults to 'scraped_debates'.
-        prefix (str, optional): Prefix for the filename. Defaults to 'debate'.
+
     
     Returns:
         str: Full path to the saved file
     """
     # Create the base directory if it doesn't exist
     os.makedirs(base_directory, exist_ok=True)
-    
-    # Generate a unique filename
-    filename = f"{prefix}_{identifier}.txt"
+
+    if identifier is not None:
+        filename = f"{identifier}_{date}.txt"
+    else:
+        filename = f"{backup_identifier}_{date}.txt"
     full_path = os.path.join(base_directory, filename)
     
     # Save the text with UTF-8 encoding to support various characters
@@ -116,23 +131,31 @@ def save_scraped_text(raw_text, identifier, base_directory='scraped_debates', pr
     except IOError as e:
         print(f"Error saving file: {e}")
         return None
-    
 
+    
 
 responses = fetch_all_urls(url_list)
 
 names_in_document = []
 
-for document in responses:
-     # Parsing
-     soup = BeautifulSoup(document.content, "html.parser")
-     # Extracting clean text and saving to file
-     clean_text = soup.get_text()
+for index, document in enumerate(responses):
+    soup = BeautifulSoup(document.content, "html.parser")
 
-     name = extract_names(clean_text)
-     print(name)
-     names_in_document.append(name)
+    # Extract date
+    date = extract_date(soup)
+    if date is None:
+        date = f"no_date_{index}"  # fallback for missing <h1> tag
 
-     # Creating indexing variable as the data type was "response" from the requests package, this does not work as an iterable variable
-     index = responses.index(document)
-     save_scraped_text(raw_text=clean_text, identifier = names_in_document[index])
+    # Extract clean speaker text
+    clean_text = soup.get_text()
+
+    # Extract name (may be None)
+    name = extract_names(clean_text)
+
+    # Save text regardless of whether name was found
+    save_scraped_text(
+        raw_text=clean_text,
+        identifier=name,
+        date=date,
+        backup_identifier=index
+    )
