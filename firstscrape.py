@@ -130,10 +130,9 @@ for doc in all_docs_sliced:
     document_date.append(date)
     link = f"https://www.ft.dk{doc}"
     constructed_links.append(link)
-print("Links constructed")
 
 # Passing the constructed links to the fetch function again
-print("Fetching all docs")
+print("Fetching all docs.. This takes a while.")
 fetched_documents = fetch_all_urls(constructed_links)
 
 # This now extracts all clean text and saves with a unique timestamp to prevent overwriting
